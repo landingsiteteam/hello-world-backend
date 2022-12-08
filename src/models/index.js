@@ -1,36 +1,46 @@
+'use strict';
+
 const Sequelize = require('sequelize');
-// const Op = require('sequelize').Op;
+const Op = require('sequelize').Op;
 const config = require('config');
+const models = {};
 
-const host = config.get('db.host') || 'localhost';
-const port = config.get('db.port') || 3306;
-const database = config.get('db.database') || 'rsg';
-const username = config.get('db.username') || 'root';
-const password = config.get('db.password') || '';
-const timezone = config.get('db.timezone') || '+08:00';
-
-const sequelize = new Sequelize(database, username, password, {
-  host: host,
-  port: port,
+const sequelize = new Sequelize(config.get('db.database'), config.get('db.username'), config.get('db.password'), {
+  host: config.get('db.host'),
+  port: config.get('db.port') || 3306,
   dialect: 'mariadb',
+  logging: true,
+  pool: {
+    max: config.get('db.pool.max') || 10,
+    min: config.get('db.pool.min') || 0,
+    idle: config.get('db.pool.idle') || 3000,
+  },
+  charset: 'utf8mb4',
   dialectOptions: {
     collate: 'utf8mb4_general_ci',
     useUTC: false,
+    timezone: config.get('db.timezone'),
     autoJsonMap: false,
   },
-  pool: { min: 0, max: 5, idle: 1000 },
-  timezone,
+  timezone: config.get('db.timezone'),
+  operatorsAliases: {
+    $gt: Op.gt,
+    $lt: Op.lt,
+    $gte: Op.gte,
+    $lte: Op.lte,
+  },
 });
 
-const User = require('./user.js')(sequelize);
-const Role = require('./role.js')(sequelize);
+models['User'] = require('./user.js')(sequelize);
+models['Role'] = require('./role.js')(sequelize);
 
-const models = { User, Role };
-
-Object.values(models).forEach((model) => {
-  if (model.associate) {
-    model.associate(models);
+Object.keys(models).forEach((modelName) => {
+  if (models[modelName].associate) {
+    models[modelName].associate(models);
   }
 });
 
-module.exports = { sequelize, Sequelize, User, Role };
+models.sequelize = sequelize;
+models.Sequelize = Sequelize;
+
+module.exports = models;

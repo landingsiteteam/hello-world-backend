@@ -1,14 +1,13 @@
 {
   "name": "hello-world-backend",
   "version": "1.0.0",
-  "main": "src/main.js",
-  "repository": "git@github.com:landingsiteteam/hello-world-backend.git",
-  "author": "landingsitetech <hao.wang@landingsite.cn>",
+  "author": "W.H.",
   "license": "MIT",
+  "private": false,
   "scripts": {
     "dev-build": "webpack --mode development --progress --watch",
-    "build": "webpack --mode production --progress",
-    "dev": "set NODE_ENV=development && nodemon dist/app.js",
+    "build": "set NODE_ENV=production && webpack --config ./webpack.config.js --mode production --progress",
+    "dev": "set NODE_ENV=development && nodemon run",
     "start": "set NODE_ENV=production && node dist/app.js"
   },
   "dependencies": {

@@ -1,3 +1,5 @@
+'use strict';
+
 const { DataTypes, Model } = require('sequelize');
 
 module.exports = (sequelize) => {
@@ -8,7 +10,7 @@ module.exports = (sequelize) => {
     {
       name: { type: DataTypes.STRING(255), allowNull: false, defaultValue: 0 },
     },
-    { sequelize }
+    { sequelize, modelName: 'Role' }
   );
   return Role;
 };
