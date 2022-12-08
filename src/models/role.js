@@ -1,16 +1,14 @@
-'use strict';
+import Sequelize from 'sequelize';
 
-const { DataTypes, Model } = require('sequelize');
-
-module.exports = (sequelize) => {
-  class Role extends Model {
-    static associate(models) {}
+class Role extends Sequelize.Model {
+  static init(sequelize, DataTypes) {
+    return super.init(
+      {
+        name: { type: DataTypes.STRING(255) },
+      },
+      { sequelize, modelName: 'Role' }
+    );
   }
-  Role.init(
-    {
-      name: { type: DataTypes.STRING(255), allowNull: false, defaultValue: 0 },
-    },
-    { sequelize, modelName: 'Role' }
-  );
-  return Role;
-};
+  static associate() {}
+}
+export default Role;

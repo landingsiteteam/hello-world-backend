@@ -1,7 +1,7 @@
 import Http from 'http';
 import Koa from 'koa';
 import KoaBody from 'koa-body';
-import db from './models/index.js';
+import { sequelize } from './models/index.js';
 import router from './router/index.js';
 
 const app = new Koa();
@@ -20,8 +20,8 @@ app
 
 const server = Http.createServer(app.callback());
 async function run() {
-  await db.sequelize.authenticate();
-  await db.sequelize.sync();
+  await sequelize.authenticate();
+  await sequelize.sync();
   server.listen(process.env.PORT || 3000);
 }
 

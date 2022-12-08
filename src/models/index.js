@@ -1,46 +1,37 @@
-'use strict';
+import config from 'config';
+import { default as DataTypes, default as Sequelize } from 'sequelize';
+// import logger from '../logger/index.js';
+import Role from './role.js';
+import User from './user.js';
 
-const Sequelize = require('sequelize');
-const Op = require('sequelize').Op;
-const config = require('config');
-const models = {};
+const models = [User, Role];
 
-const sequelize = new Sequelize(config.get('db.database'), config.get('db.username'), config.get('db.password'), {
-  host: config.get('db.host'),
-  port: config.get('db.port') || 3306,
+const host = config.get('db.host') || 'localhost';
+const port = config.get('db.port') || 3306;
+const database = config.get('db.database') || 'rsg';
+const username = config.get('db.username') || 'root';
+const password = config.get('db.password') || '';
+
+const sequelize = new Sequelize(database, username, password, {
+  host: host,
+  port: port,
   dialect: 'mariadb',
-  logging: true,
-  pool: {
-    max: config.get('db.pool.max') || 10,
-    min: config.get('db.pool.min') || 0,
-    idle: config.get('db.pool.idle') || 3000,
-  },
-  charset: 'utf8mb4',
   dialectOptions: {
     collate: 'utf8mb4_general_ci',
     useUTC: false,
-    timezone: config.get('db.timezone'),
     autoJsonMap: false,
   },
-  timezone: config.get('db.timezone'),
-  operatorsAliases: {
-    $gt: Op.gt,
-    $lt: Op.lt,
-    $gte: Op.gte,
-    $lte: Op.lte,
-  },
+  logging: true,
+  pool: { max: 5, idle: 1000 },
+  timezone: '+08:00',
 });
 
-models['User'] = require('./user.js')(sequelize);
-models['Role'] = require('./role.js')(sequelize);
+for (let model of models) {
+  model.init(sequelize, DataTypes);
+}
+for (let model of models) {
+  console.info('=>', model.name);
+  model.associate();
+}
 
-Object.keys(models).forEach((modelName) => {
-  if (models[modelName].associate) {
-    models[modelName].associate(models);
-  }
-});
-
-models.sequelize = sequelize;
-models.Sequelize = Sequelize;
-
-module.exports = models;
+export { sequelize, Sequelize, User, Role };
